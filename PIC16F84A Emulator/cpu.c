@@ -762,7 +762,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
 //Executes one instruction
 int CpuExec(PIC_CPU *Cpu)
 {
-    short PC;
+    unsigned short PC;
 
     //Get the PC
     PC = CpuGetPC(Cpu);
@@ -771,7 +771,7 @@ int CpuExec(PIC_CPU *Cpu)
     PC = CpuExecuteOpcode(Cpu, CpuGetOpcode(Cpu, PC), PC);
     if (PC == 0xFFFF)
     {
-        printf("Opcode execution failed\n");
+        printf("Opcode unsupported\n");
         return -1;
     }
     
