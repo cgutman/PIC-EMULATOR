@@ -1,0 +1,11 @@
+PIC16F84A Emulator
+
+Building:
+
+Windows: No build file or VS project supplied as of now.
+Linux/BSD: There's a makefile in the "PIC16F84A Emulator" directory.
+OS X: The XCode project may or may not work on other machines. :/
+
+Running:
+
+Execute PIC-EMU with no parameter for an interpreter interface.
