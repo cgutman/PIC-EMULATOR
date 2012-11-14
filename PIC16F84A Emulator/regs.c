@@ -244,7 +244,8 @@ void RegsSetValue(REGISTER_FILE *Regs, unsigned char RegFileAddr, unsigned char 
             printf(": 0x%x -> 0x%x\n", *Destination, (Value & WriteMask));
         }
 
-        *Destination = (Value & WriteMask);
+        *Destination &= ~WriteMask;
+        *Destination |= (Value & WriteMask);
     }
     else
     {
