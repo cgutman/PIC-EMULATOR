@@ -3,3 +3,6 @@
 
 #Ignore stuff with ~ because of Gedit crap
 *~
+
+#Ignore the compiled binary
+PIC-EMU
