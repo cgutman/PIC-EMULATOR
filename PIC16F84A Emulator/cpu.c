@@ -106,6 +106,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 
                 //If the high 4-bit add overflowed, set the C bit
                 result = (Cpu->W >> 4) + (RegsGetValue(&Cpu->Regs, op1) >> 4);
+                result += (status & STATUS_DC) ? 1 : 0;
                 if ((result & 0x10) != 0)
                     status |= STATUS_C;
                 else
@@ -438,7 +439,9 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                     status &= ~STATUS_DC;
                 
                 //If the high 4-bit sub underflowed, set the C bit
-                result = (RegsGetValue(&Cpu->Regs, op1) >> 4) - (Cpu->W >> 4);
+                result = RegsGetValue(&Cpu->Regs, op1) >> 4;
+                result -= (status & STATUS_DC) ? 0 : 1;
+                result -= Cpu->W >> 4;
                 
                 //Polarity is reversed for SUB
                 if ((result & 0x10) == 0)
@@ -599,6 +602,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                         
             //If the high 4-bit add overflowed, set the C bit
             result = (Cpu->W >> 4) + (op1 >> 4);
+            result += (status & STATUS_DC) ? 1 : 0;
             if ((result & 0x10) != 0)
                 status |= STATUS_C;
             else
@@ -708,7 +712,9 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 status &= ~STATUS_DC;
             
             //If the high 4-bit sub underflowed, set the C bit
-            result = (op1 >> 4) - (Cpu->W >> 4);
+            result = op1 >> 4;
+            result -= (status & STATUS_DC) ? 0 : 1;
+            result -= Cpu->W >> 4;
             
             //Polarity is reversed for SUB
             if ((result & 0x10) == 0)
