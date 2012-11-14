@@ -61,11 +61,18 @@ int main(int argc, const char * argv[])
                 {
                     //Get a new opcode from the console
                     printf("Opcode 0x%x: ", PC);
-                    scanf("%s", opstr);
-                    sscanf(opstr, "%s %d, %d", opname, &op1, &op2);
-                    
-                    //Generate an opcode
-                    opcode = OpGenerateOpcode(opname, (char)op1, (char)op2);
+                    if (!fgets(opstr, 32, stdin))
+                    {
+                        //Invalid input
+                        opcode = 0xFFFF;
+                    }
+                    else
+                    {
+                        sscanf(opstr, "%s %d, %d", opname, &op1, &op2);
+                        
+                        //Generate an opcode
+                        opcode = OpGenerateOpcode(opname, (char)op1, (char)op2);
+                    }
                 } while (opcode == 0xFFFF);
                 
                 //Write the opcode to program memory
