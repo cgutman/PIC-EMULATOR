@@ -27,12 +27,9 @@ void StkPush(PIC_STACK *Stack, unsigned char Data)
 
 unsigned char StkPop(PIC_STACK *Stack)
 {
-    unsigned char Location;
-
-    //Update the location
-    Location = Stack->NextTop - 1;
-    Location %= PIC_STACK_ENTRIES;
-    Stack->NextTop = Location;
+    //Update the next top
+    Stack->NextTop = Stack->NextTop - 1;
+    Stack->NextTop %= PIC_STACK_ENTRIES;
 
     //Return the value that was there
     return Stack->Entries[Stack->NextTop];

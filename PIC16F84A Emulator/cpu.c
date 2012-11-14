@@ -717,8 +717,16 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         }
         else if ((opcode & 0xC00) == 0x400)
         {
-            printf("RETLW %d\n", (opcode & 0xFF));
-            return 0xFFFF;
+            //RETLW
+
+            //Get the operand
+            op1 = (opcode & 0xFF);
+            
+            //Write the return value into W
+            Cpu->W = op1;
+            
+            //Pop the return address into PC
+            PC = StkPop(&Cpu->Stack);
         }
         else if ((opcode & 0xC00) == 0xC00)
         {
