@@ -135,7 +135,6 @@ int DecodeStringInput(char *opstr, char *opname, int *op1, int *op2)
     }
 
     //Make sure the string was well-formatted
-    printf("%d %d\n", matches, op + 1);
     if (matches != op + 1)
         return -1;
 
