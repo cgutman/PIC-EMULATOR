@@ -10,6 +10,7 @@
 
 #include "cpu.h"
 #include "opcode.h"
+#include "err.h"
 
 int CpuInitializeCore(PIC_CPU *Cpu)
 {
@@ -343,22 +344,28 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                     switch (opcode & 0xFF)
                     {
                         case OP_CLRWDT:
-                            printf("CLRWDT\n");
+                            //NOTE: Reset WDT if we ever implement one
+
+                            //Set the status bits
+                            status |= (STATUS_PD | STATUS_TO);
                             break;
                         case OP_RETFIE:
                             printf("RETFIE\n");
-                            break;
+                            return 0xFFFF;
                         case OP_RETURN:
                             printf("RETURN\n");
-                            break;
+                            return 0xFFFF;
                         case OP_SLEEP:
-                            printf("SLEEP\n");
+                            //NOTE: Reset WDT if we ever implement one
+                            
+                            //Change the status bits
+                            status |= STATUS_TO;
+                            status &= ~STATUS_PD;
                             break;
                         default:
                             printf("Invalid 00 0000 opcode!\n");
-                            break;
+                            return 0xFFFF;
                     }
-                    return 0xFFFF;
                 }
                 break;
                 
@@ -774,7 +781,7 @@ int CpuExec(PIC_CPU *Cpu)
         printf("Opcode unsupported\n");
         return -1;
     }
-    
+
     //Set the new PC
     printf("PC -> 0x%x\n", PC);
     CpuSetPC(Cpu, PC);
