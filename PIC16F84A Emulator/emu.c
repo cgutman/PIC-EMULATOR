@@ -11,16 +11,36 @@
 #include "emu.h"
 #include "cpu.h"
 
-int RunEmu(unsigned char *Bytecode, int BytecodeLength)
+int EmuInitialize(EMU_STATE *State)
+{
+    int err;
+
+    //Initialize the CPU core state
+    err = CpuInitializeCore(&State->Cpu);
+    if (err < 0)
+    {
+        printf("Failed to initialize the CPU's core state\n");
+        return err;
+    }
+
+    return 0;
+}
+
+int EmuExecuteOpcode(EMU_STATE *State, short Opcode)
+{
+    return CpuExecuteOpcode(&State->Cpu, Opcode, 0);
+}
+
+int EmuExecuteBytecode(unsigned char *Bytecode, int BytecodeLength)
 {
     int err;
     EMU_STATE state;
 
-    //Initialize the CPU core state
-    err = CpuInitializeCore(&state.Cpu);
+    //Call common init function
+    err = EmuInitialize(&state);
     if (err < 0)
     {
-        printf("Failed to initialize the CPU's core state\n");
+        printf("Failed to initialize emulator\n");
         return err;
     }
 

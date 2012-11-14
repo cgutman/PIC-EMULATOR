@@ -11,8 +11,14 @@
 
 #include "regs.h"
 
-//PIC's program memory size is 1024 words
-#define PROGRAM_MEM_SIZE (1024 * 2)
+//PIC's program memory size is 1024 instructions
+#define PROGRAM_MEM_SIZE 0x400
+
+//PIC's opcodes are 14-bit
+#define PIC_OPCODE_MASK 0x3FFF
+
+//PIC's opcodes are 14 bits
+#define PIC_OPCODE_SIZE 0xE
 
 //This struct represents the CPU state
 typedef struct _PIC_CPU {
@@ -26,5 +32,7 @@ int CpuInitializeProgramMemory(PIC_CPU *Cpu, unsigned char *buffer, int size);
 int CpuInitializeCore(PIC_CPU *Cpu);
 
 int CpuExec(PIC_CPU *Cpu);
+
+int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC);
 
 #endif

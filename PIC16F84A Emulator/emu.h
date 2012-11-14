@@ -17,6 +17,8 @@ typedef struct _EMU_STATE {
     PIC_CPU Cpu;
 } EMU_STATE;
 
-EMU_STATE *EmuInitialize(char *Bytecode, int BytecodeLength);
+int EmuInitialize(EMU_STATE *State);
+int EmuExecuteOpcode(EMU_STATE *State, short Opcode);
+int EmuExecuteBytecode(unsigned char *Bytecode, int BytecodeLength);
 
 #endif
