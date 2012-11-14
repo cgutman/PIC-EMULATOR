@@ -26,9 +26,9 @@ int EmuInitialize(EMU_STATE *State)
     return 0;
 }
 
-int EmuExecuteOpcode(EMU_STATE *State, short Opcode)
+int EmuExecuteOpcode(EMU_STATE *State)
 {
-    return CpuExecuteOpcode(&State->Cpu, Opcode, 0);
+    return CpuExec(&State->Cpu);
 }
 
 int EmuExecuteBytecode(unsigned char *Bytecode, int BytecodeLength)

@@ -18,7 +18,7 @@ typedef struct _EMU_STATE {
 } EMU_STATE;
 
 int EmuInitialize(EMU_STATE *State);
-int EmuExecuteOpcode(EMU_STATE *State, short Opcode);
+int EmuExecuteOpcode(EMU_STATE *State);
 int EmuExecuteBytecode(unsigned char *Bytecode, int BytecodeLength);
 
 #endif

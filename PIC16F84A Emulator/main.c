@@ -15,12 +15,15 @@ int main(int argc, const char * argv[])
 {
     char opname[16];
     int op1, op2;
-    unsigned short opcode;
     int err;
     EMU_STATE state;
+    unsigned char badops[PROGRAM_MEM_SIZE];
 
+    
     if (argc <= 1)
     {
+        //FIXME: This violates my CPU <-> EMU abstraction
+
         printf("PIC Emulator - Interpreter Mode\n");
         
         err = EmuInitialize(&state);
@@ -30,25 +33,46 @@ int main(int argc, const char * argv[])
             return err;
         }
         
+        memset(badops, 0xFF, PROGRAM_MEM_SIZE);
+        err = CpuInitializeProgramMemory(&state.Cpu, badops, PROGRAM_MEM_SIZE);
+        if (err < 0)
+        {
+            printf("Failed to initialize program memory\n");
+            return err;
+        }
+        
         for (;;)
         {
-            printf("Opcode: ");
-            scanf("%s %d, %d", opname, &op1, &op2);
+            unsigned short PC = CpuGetPC(&state.Cpu);
+            unsigned short opcode = CpuGetOpcode(&state.Cpu, PC);
 
-            //Generate an opcode
-            opcode = OpGenerateOpcode(opname, (char)op1, (char)op2);
+            //Check if there's an opcode already decoded for this
+            //FIXME: PIC_OPCODE_MASK is a valid opcode
+            if (opcode != PIC_OPCODE_MASK)
+            {
+                //Print the opcode back
+                printf("Opcode 0x%x: ", PC);
+                OpPrintOpcode(opcode);
+                printf("\n");
+            }
+            else
+            {
+                do
+                {
+                    //Get a new opcode from the console
+                    printf("Opcode 0x%x: ", PC);
+                    scanf("%s %d, %d", opname, &op1, &op2);
+                    
+                    //Generate an opcode
+                    opcode = OpGenerateOpcode(opname, (char)op1, (char)op2);
+                } while (opcode == 0xFFFF);
+                
+                //Write the opcode to program memory
+                CpuSetOpcode(&state.Cpu, PC, opcode);
+            }
 
-#ifdef DBG
-            printf("Encoded opcode: 0x%x\n", opcode);
-
-            //Print the opcode back
-            printf("Decoded opcode: ");
-            OpPrintOpcode(opcode);
-            printf("\n");
-#endif
-
-            //Execute the opcode
-            err = EmuExecuteOpcode(&state, opcode);
+            //Execute the next opcode
+            err = EmuExecuteOpcode(&state);
             if (err < 0)
                 return err;
         }

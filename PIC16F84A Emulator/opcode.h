@@ -9,6 +9,10 @@
 #ifndef PIC16F84A_Emulator_opcode_h
 #define PIC16F84A_Emulator_opcode_h
 
+typedef struct _PIC_OPCODE {
+    unsigned short Opcode:14;
+} PIC_OPCODE;
+
 #define OP_ADDWF    0x700
 #define OP_ANDWF    0x500
 #define OP_CLRF     0x180

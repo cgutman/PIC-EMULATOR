@@ -31,6 +31,13 @@ int CpuInitializeProgramMemory(PIC_CPU *Cpu, unsigned char *buffer, int size)
         return -1;
     }
 
+    //Make sure the bytecode size is a multiple of the PIC instruction length
+    if (((size * 0x08) % PIC_OPCODE_BITS) != 0)
+    {
+        printf("Program is not valid PIC bytecode\n");
+        return -1;
+    }
+
     //Copy the bytecode into our private memory
     memcpy(Cpu->ProgMem, buffer, size);
 
@@ -38,7 +45,30 @@ int CpuInitializeProgramMemory(PIC_CPU *Cpu, unsigned char *buffer, int size)
     return 0;
 }
 
-int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
+unsigned short CpuGetPC(PIC_CPU *Cpu)
+{
+    //Construct the full PC and do wrap-around handling
+    return ((Cpu->Regs.PCLATH << 8) | Cpu->Regs.PCL) & (PROGRAM_MEM_INSTRUCTIONS - 1);
+}
+
+void CpuSetPC(PIC_CPU *Cpu, unsigned short PC)
+{
+    //Write the new PC back
+    Cpu->Regs.PCLATH = (PC << 8) & 0x1F;
+    Cpu->Regs.PCL = (PC & 0xFF);
+}
+
+unsigned short CpuGetOpcode(PIC_CPU *Cpu, unsigned short PC)
+{
+    return (Cpu->ProgMem[PC].Opcode) & PIC_OPCODE_MASK;
+}
+
+void CpuSetOpcode(PIC_CPU *Cpu, unsigned short PC, unsigned short Opcode)
+{
+    Cpu->ProgMem[PC].Opcode = Opcode & PIC_OPCODE_MASK;
+}
+
+unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
 {
     unsigned char result;
     unsigned char op1, op2;
@@ -50,8 +80,11 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
     if ((opcode & 0xC000) != 0)
     {
         printf("Invalid high bits in opcode");
-        return -1;
+        return 0xFFFF;
     }
+
+    //Skip to the next instruction
+    PC ++;
     
     //Classify the opcode by the highest byte
     if ((opcode & 0x3000) == 0x0000)
@@ -199,9 +232,9 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 else
                     RegsSetValue(&Cpu->Regs, op1, result);
                 
-                //Perform operation if 0
+                //Skip next instruction if 0
                 if (result == 0)
-                    PC += PIC_OPCODE_SIZE;
+                    PC ++;
                 
                 break;
 
@@ -241,9 +274,9 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 else
                     RegsSetValue(&Cpu->Regs, op1, result);
                 
-                //Perform operation if 0
+                //Skip next instruction if 0
                 if (result == 0)
-                    PC += PIC_OPCODE_SIZE;
+                    PC ++;
                 break;
                 
             case OP_IORWF:
@@ -324,7 +357,7 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                             printf("Invalid 00 0000 opcode!");
                             break;
                     }
-                    return -1;
+                    return 0xFFFF;
                 }
                 break;
                 
@@ -469,7 +502,7 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 break;
             default:
                 printf("Invalid 00 opcode!");
-                return -1;
+                return 0xFFFF;
         }
     }
     else if ((opcode & 0x3000) == 0x1000)
@@ -509,9 +542,9 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 //Execute the operation
                 result = RegsGetValue(&Cpu->Regs, op1) & (1 << op2);
                 
-                //Perform the operation
+                //Skip the next instruction
                 if (result == 0)
-                    PC += PIC_OPCODE_SIZE;
+                    PC ++;
                 break;
                 
             case OP_BTFSS:
@@ -522,14 +555,14 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 //Execute the operation
                 result = RegsGetValue(&Cpu->Regs, op1) & (1 << op2);
                 
-                //Perform the operation
+                //Skip the next instruction
                 if (result != 0)
-                    PC += PIC_OPCODE_SIZE;
+                    PC ++;
                 break;
                 
             default:
                 printf("Invalid 01 opcode!");
-                return -1;
+                return 0xFFFF;
         }
     }
     else if ((opcode & 0x3000) == 0x2000)
@@ -537,13 +570,16 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         //GOTO / CALL
         if ((opcode & 0x800) != 0)
         {
-            printf("GOTO %d", (opcode & 0x7FF));
+            //GOTO
+
+            //Update the PC
+            PC = (opcode & 0x7FF);
         }
         else
         {
             printf("CALL %d", (opcode & 0x7FF));
+            return 0xFFFF;
         }
-        return -1;
     }
     else //0x3000
     {
@@ -653,7 +689,7 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         else if ((opcode & 0xC00) == 0x400)
         {
             printf("RETLW %d", (opcode & 0xFF));
-            return -1;
+            return 0xFFFF;
         }
         else if ((opcode & 0xC00) == 0xC00)
         {
@@ -695,7 +731,7 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         else
         {
             printf("Invalid 11 opcode!");
-            return -1;
+            return 0xFFFF;
         }
     }
     
@@ -721,20 +757,21 @@ int CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
 int CpuExec(PIC_CPU *Cpu)
 {
     short PC;
-    short opcode;
 
-    //Construct the full PC and do wrap-around handling
-    PC = ((Cpu->Regs.PCLATH << 8) | Cpu->Regs.PCL) & (PROGRAM_MEM_SIZE - 1);
+    //Get the PC
+    PC = CpuGetPC(Cpu);
 
-    //Grab the 14-bit opcode from the program memory
-    opcode = (*((short*)&Cpu->ProgMem[PC])) & PIC_OPCODE_MASK;
-
-    //Exe
+    //Execute an opcode
+    PC = CpuExecuteOpcode(Cpu, CpuGetOpcode(Cpu, PC), PC);
+    if (PC == 0xFFFF)
+    {
+        printf("Opcode execution failed\n");
+        return -1;
+    }
     
-    //Increment the PC and write it back
-    PC = PC + PIC_OPCODE_SIZE;
-    Cpu->Regs.PCLATH = (PC << 8) & 0x1F;
-    Cpu->Regs.PCL = (PC & 0xFF);
+    //Set the new PC
+    printf("PC -> 0x%x\n", PC);
+    CpuSetPC(Cpu, PC);
 
     //1 instruction retired :)
     return 0;

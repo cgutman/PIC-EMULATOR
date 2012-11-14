@@ -86,9 +86,9 @@ typedef struct _REGISTER_FILE {
 
     //PCLATH is 0 at init
 #define REG_PCLATH        0x0A
-#define RESET_PCLATH      (UNDEFINED_VAL & 0x1E)
+#define RESET_PCLATH       0x00
 #define WRITE_MASK_PCLATH  0x1E
-#define READ_MASK_PCLATH   0x1E
+#define READ_MASK_PCLATH   0x00
     unsigned char PCLATH;    //Write buffer for upper 5-bits of PC
 
     //INTCON is partially 0, partially undefined at init
