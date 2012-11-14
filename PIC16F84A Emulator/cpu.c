@@ -10,13 +10,16 @@
 
 #include "cpu.h"
 #include "opcode.h"
-#include "err.h"
+#include "stack.h"
 
 int CpuInitializeCore(PIC_CPU *Cpu)
 {
     //Initialize register file
     RegsInitializeRegisterFile(&Cpu->Regs);
 
+    //Initialize the stack
+    StkInitialize(&Cpu->Stack);
+    
     //W and SRAM state is left undefined
 
     //Success
@@ -350,11 +353,15 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                             status |= (STATUS_PD | STATUS_TO);
                             break;
                         case OP_RETFIE:
-                            printf("RETFIE\n");
-                            return 0xFFFF;
+                            //TODO: Set the GIE bit in INTCON
+
+                            //Pop the return address into PC
+                            PC = StkPop(&Cpu->Stack);
+                            break;
                         case OP_RETURN:
-                            printf("RETURN\n");
-                            return 0xFFFF;
+                            //Pop the return address into PC
+                            PC = StkPop(&Cpu->Stack);
+                            break;
                         case OP_SLEEP:
                             //NOTE: Reset WDT if we ever implement one
                             
@@ -582,13 +589,24 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         {
             //GOTO
 
+            //The upper 2 bits are preserved
+            PC = PC & 0x1800;
+            
             //Update the PC
-            PC = (opcode & 0x7FF);
+            PC |= (opcode & 0x7FF);
         }
         else
         {
-            printf("CALL %d\n", (opcode & 0x7FF));
-            return 0xFFFF;
+            //CALL
+            
+            //Push the return address
+            StkPush(&Cpu->Stack, PC);
+
+            //The upper 2 bits are preserved
+            PC = PC & 0x1800;
+            
+            //Update the PC
+            PC |= (opcode & 0x7FF);
         }
     }
     else //0x3000

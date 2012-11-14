@@ -11,6 +11,7 @@
 
 #include "regs.h"
 #include "opcode.h"
+#include "stack.h"
 
 //PIC's program memory size is 1024 instructions
 #define PROGRAM_MEM_INSTRUCTIONS 0x400
@@ -26,6 +27,7 @@
 typedef struct _PIC_CPU {
     REGISTER_FILE Regs;
     WORKING_REGISTER W;
+    PIC_STACK Stack;
     PIC_OPCODE ProgMem[PROGRAM_MEM_INSTRUCTIONS];
 } PIC_CPU;
 
