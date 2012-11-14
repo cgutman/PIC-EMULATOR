@@ -9,15 +9,19 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "emu.h"
 #include "opcode.h"
 
 int main(int argc, const char * argv[])
 {
-    char opname[16], opstr[32];
+#define MAX_INPUT_LEN 32
+#define MAX_OPNAME_LEN 16
+    char opname[MAX_OPNAME_LEN], opstr[MAX_INPUT_LEN];
     int op1, op2;
     int err;
+    int i;
     EMU_STATE state;
     unsigned char badops[PROGRAM_MEM_SIZE];
 
@@ -63,13 +67,23 @@ int main(int argc, const char * argv[])
                 {
                     //Get a new opcode from the console
                     printf("Opcode 0x%x: ", PC);
-                    if (!fgets(opstr, 32, stdin))
+                    if (!fgets(opstr, MAX_INPUT_LEN, stdin))
                     {
                         //Invalid input
                         opcode = 0xFFFF;
                     }
                     else
                     {
+                        //Convert to upper case
+                        for (i = 0; i < MAX_INPUT_LEN; i++)
+                        {
+                             if (opstr[i] == 0)
+                                 break;
+
+                             opstr[i] = toupper(opstr[i]);
+                        }
+
+                        //Decode the input
                         sscanf(opstr, "%s %d, %d", opname, &op1, &op2);
                         
                         //Generate an opcode
