@@ -79,7 +79,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
     //Make sure this is 14-bit
     if ((opcode & 0xC000) != 0)
     {
-        printf("Invalid high bits in opcode");
+        printf("Invalid high bits in opcode\n");
         return 0xFFFF;
     }
 
@@ -343,19 +343,19 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                     switch (opcode & 0xFF)
                     {
                         case OP_CLRWDT:
-                            printf("CLRWDT");
+                            printf("CLRWDT\n");
                             break;
                         case OP_RETFIE:
-                            printf("RETFIE");
+                            printf("RETFIE\n");
                             break;
                         case OP_RETURN:
-                            printf("RETURN");
+                            printf("RETURN\n");
                             break;
                         case OP_SLEEP:
-                            printf("SLEEP");
+                            printf("SLEEP\n");
                             break;
                         default:
-                            printf("Invalid 00 0000 opcode!");
+                            printf("Invalid 00 0000 opcode!\n");
                             break;
                     }
                     return 0xFFFF;
@@ -504,7 +504,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                     status &= ~STATUS_Z;
                 break;
             default:
-                printf("Invalid 00 opcode!");
+                printf("Invalid 00 opcode!\n");
                 return 0xFFFF;
         }
     }
@@ -564,7 +564,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
                 break;
                 
             default:
-                printf("Invalid 01 opcode!");
+                printf("Invalid 01 opcode!\n");
                 return 0xFFFF;
         }
     }
@@ -580,7 +580,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         }
         else
         {
-            printf("CALL %d", (opcode & 0x7FF));
+            printf("CALL %d\n", (opcode & 0x7FF));
             return 0xFFFF;
         }
     }
@@ -692,7 +692,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         }
         else if ((opcode & 0xC00) == 0x400)
         {
-            printf("RETLW %d", (opcode & 0xFF));
+            printf("RETLW %d\n", (opcode & 0xFF));
             return 0xFFFF;
         }
         else if ((opcode & 0xC00) == 0xC00)
@@ -736,7 +736,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         }
         else
         {
-            printf("Invalid 11 opcode!");
+            printf("Invalid 11 opcode!\n");
             return 0xFFFF;
         }
     }

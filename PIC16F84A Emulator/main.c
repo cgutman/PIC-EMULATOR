@@ -13,7 +13,7 @@
 
 int main(int argc, const char * argv[])
 {
-    char opname[16];
+    char opname[16], opstr[32];
     int op1, op2;
     int err;
     EMU_STATE state;
@@ -61,7 +61,8 @@ int main(int argc, const char * argv[])
                 {
                     //Get a new opcode from the console
                     printf("Opcode 0x%x: ", PC);
-                    scanf("%s %d, %d", opname, &op1, &op2);
+                    scanf("%s", opstr);
+                    sscanf(opstr, "%s %d, %d", opname, &op1, &op2);
                     
                     //Generate an opcode
                     opcode = OpGenerateOpcode(opname, (char)op1, (char)op2);
