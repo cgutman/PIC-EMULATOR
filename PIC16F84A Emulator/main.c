@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 
 #include "emu.h"
 #include "opcode.h"
@@ -89,4 +90,6 @@ int main(int argc, const char * argv[])
     {
         //Not supported
     }
+
+    return 0;
 }

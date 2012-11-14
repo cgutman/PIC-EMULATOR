@@ -7,10 +7,12 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 
 #include "cpu.h"
 #include "opcode.h"
 #include "stack.h"
+
 
 int CpuInitializeCore(PIC_CPU *Cpu)
 {
