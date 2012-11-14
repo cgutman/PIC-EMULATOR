@@ -114,27 +114,28 @@ int DecodeStringInput(char *opstr, char *opname, int *op1, int *op2)
         {
             if (isHex[1])
             {
-                matches = sscanf(opstr, "%x, %x", op1, op2);
+                matches = sscanf(opstr, "%x , %x", op1, op2);
             }
             else
             {
-                matches = sscanf(opstr, "%x, %d", op1, op2);
+                matches = sscanf(opstr, "%x , %d", op1, op2);
             }
         }
         else
         {
             if (isHex[1])
             {
-                matches = sscanf(opstr, "%d, %x", op1, op2);
+                matches = sscanf(opstr, "%d , %x", op1, op2);
             }
             else
             {
-                matches = sscanf(opstr, "%d, %d", op1, op2);
+                matches = sscanf(opstr, "%d , %d", op1, op2);
             }
         }
     }
 
     //Make sure the string was well-formatted
+    printf("%d %d\n", matches, op + 1);
     if (matches != op + 1)
         return -1;
 
