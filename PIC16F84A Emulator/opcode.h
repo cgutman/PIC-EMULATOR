@@ -14,6 +14,11 @@ typedef struct _PIC_OPCODE {
     unsigned short Opcode:14;
 } PIC_OPCODE;
 
+#define DST_W       0x00
+#define DST_F       0x01
+
+#define OP_INVALID  0xFFFF
+
 #define OP_ADDWF    0x700
 #define OP_ANDWF    0x500
 #define OP_CLRF     0x180

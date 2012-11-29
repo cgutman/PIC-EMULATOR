@@ -10,136 +10,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "emu.h"
 #include "opcode.h"
-
-//Naive parsing function
-int DecodeStringInput(char *opstr, char *opname, int *op1, int *op2)
-{
-    int i, matches;
-    char hasMore;
-    int op;
-    char isHex[2];
-
-    //Initialize output
-    *op1 = *op2 = 0;
-
-    //Convert to upper case
-    for (i = 0; opstr[i]; i++)
-    {
-         //Truncate the string on the first control char
-         if (iscntrl(opstr[i]))
-         {
-             opstr[i] = 0;
-             break;
-         }
-
-         opstr[i] = toupper(opstr[i]);
-    }
-
-    //Truncate at the first non-alphabetic character
-    hasMore = 0;
-    for (i = 0; opstr[i]; i++)
-    {
-         if (!isalpha(opstr[i]))
-         {
-             opstr[i] = 0;
-             hasMore = 1;
-             break;
-         }
-    }
-
-    //Copy the opname
-    strcpy(opname, opstr);
-
-    //Done if there's nothing left
-    if (!hasMore)
-    {
-        return 0;
-    }
-
-    //Skip the opname and trailing NUL now
-    opstr += strlen(opname) + 1;
-
-    //Search for the 0x hex prefix
-    op = 0;
-    isHex[0] = 0;
-    isHex[1] = 0;
-    for (i = 0; opstr[i]; i++)
-    {
-         //Skip to next operand on comma
-         if (opstr[i] == ',')
-         {
-             op++;
-             continue;
-         }
-
-         //Check for the hex prefix
-         if (opstr[i] == '0' && opstr[i+1] == 'X')
-         {
-             //Check for multiple prefixes
-             if (isHex[op])
-                 return -1;
-
-             isHex[op] = 1;
-
-             //Skip the X
-             i++;
-             continue;
-         }
-
-         //Check for a valid number
-         if (!isHex[op] && !isdigit(opstr[i]) && !isspace(opstr[i]))
-             return -1;
-         else if (isHex[op] && !isdigit(opstr[i]) && !isspace(opstr[i]) &&
-                  !(opstr[i] >= 'A' && opstr[i] <= 'F'))
-             return -1;
-    }
-
-    if (op == 0)
-    {
-        if (isHex[0])
-        {
-            matches = sscanf(opstr, "%x", op1);
-        }
-        else
-        {
-            matches = sscanf(opstr, "%d", op1);
-        }
-    }
-    else
-    {
-        if (isHex[0])
-        {
-            if (isHex[1])
-            {
-                matches = sscanf(opstr, "%x , %x", op1, op2);
-            }
-            else
-            {
-                matches = sscanf(opstr, "%x , %d", op1, op2);
-            }
-        }
-        else
-        {
-            if (isHex[1])
-            {
-                matches = sscanf(opstr, "%d , %x", op1, op2);
-            }
-            else
-            {
-                matches = sscanf(opstr, "%d , %d", op1, op2);
-            }
-        }
-    }
-
-    //Make sure the string was well-formatted
-    if (matches != op + 1)
-        return -1;
-
-    return 0;
-}
 
 int main(int argc, const char * argv[])
 {
@@ -196,16 +70,16 @@ int main(int argc, const char * argv[])
                     if (!fgets(opstr, MAX_INPUT_LEN, stdin))
                     {
                         //Invalid input
-                        opcode = 0xFFFF;
+                        opcode = OP_INVALID;
                     }
                     else
                     {
                         //Decode the string
-                        err = DecodeStringInput(opstr, opname, &op1, &op2);
+                        err = DecodeStringInput(&state.AsmContext, opstr, opname, &op1, &op2);
                         if (err < 0)
                         {
                             //Invalid input
-                            opcode = 0xFFFF;
+                            opcode = OP_INVALID;
                         }
                         else
                         {
@@ -213,7 +87,8 @@ int main(int argc, const char * argv[])
                             opcode = OpGenerateOpcode(opname, (char)op1, (char)op2);
                         }
                     }
-                } while (opcode == 0xFFFF);
+                }
+                while (opcode == OP_INVALID);
                 
                 //Write the opcode to program memory
                 CpuSetOpcode(&state.Cpu, PC, opcode);
@@ -227,7 +102,70 @@ int main(int argc, const char * argv[])
     }
     else
     {
-        //Not supported
+        FILE *f;
+        int size;
+        unsigned char *fbuffer;
+        
+        printf("PIC Emulator - %s\n", argv[2]);
+        
+        //Open the input file
+        f = fopen(argv[2], "r");
+        if (f == NULL)
+        {
+            printf("Failed to open the input file\n");
+            return -1;
+        }
+        
+        //Grab file size
+        fseek(f, 0, SEEK_END);
+        size = (int)ftell(f);
+        rewind(f);
+        
+        //Allocate a buffer for the file contents
+        fbuffer = malloc(size);
+        if (!fbuffer)
+            return -1;
+        
+        //Read in the file
+        fread(fbuffer, 1, size, f);
+
+        //Rewind the file
+        rewind(f);
+        
+        //Initialize the emulator
+        err = EmuInitialize(&state);
+        if (err < 0)
+        {
+            printf("Failed to initialize emulator\n");
+            return err;
+        }
+        
+        //Binary mode
+        if (toupper(*argv[1]) == 'B')
+        {
+            printf("Binary Mode\n");
+
+            //Execute the bytecode
+            err = EmuExecuteBytecode(fbuffer, size);
+            if (err < 0)
+            {
+                printf("Failed to execute bytecode\n");
+                return err;
+            }
+        }
+        //ASCII mode
+        else if (toupper(*argv[1]) == 'A')
+        {
+            printf("ASCII Mode\n");
+
+            //Assemble and execute the ASCII
+            err = EmuAssembleAndExecute((char*)fbuffer, size);
+            if (err < 0)
+            {
+                printf("Failed to execute bytecode\n");
+                return err;
+            }
+        }
     }
 
     return 0;

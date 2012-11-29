@@ -14,6 +14,8 @@
 		982C3E7C16526A7500AF8E8C /* emu.c in Sources */ = {isa = PBXBuildFile; fileRef = 982C3E7B16526A7500AF8E8C /* emu.c */; };
 		982C3E7F16527FFE00AF8E8C /* opcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 982C3E7E16527FFE00AF8E8C /* opcode.c */; };
 		982C3E831653787C00AF8E8C /* stack.c in Sources */ = {isa = PBXBuildFile; fileRef = 982C3E821653787C00AF8E8C /* stack.c */; };
+		98D62A3F165C2BB4008D87BA /* assembler.c in Sources */ = {isa = PBXBuildFile; fileRef = 98D62A3E165C2BB4008D87BA /* assembler.c */; };
+		98D62A461666EF47008D87BA /* str.c in Sources */ = {isa = PBXBuildFile; fileRef = 98D62A451666EF47008D87BA /* str.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +45,9 @@
 		982C3E801652802800AF8E8C /* opcode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = opcode.h; sourceTree = "<group>"; };
 		982C3E821653787C00AF8E8C /* stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stack.c; sourceTree = "<group>"; };
 		982C3E841653789700AF8E8C /* stack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stack.h; sourceTree = "<group>"; };
+		98D62A3E165C2BB4008D87BA /* assembler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assembler.c; sourceTree = "<group>"; };
+		98D62A4416651848008D87BA /* assembler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = assembler.h; sourceTree = "<group>"; };
+		98D62A451666EF47008D87BA /* str.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = str.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,16 +82,19 @@
 			children = (
 				982C3E6A1652512B00AF8E8C /* main.c */,
 				982C3E6C1652512B00AF8E8C /* PIC16F84A_Emulator.1 */,
-				982C3E781652583F00AF8E8C /* cpu.h */,
 				982C3E751652517D00AF8E8C /* cpu.c */,
+				982C3E781652583F00AF8E8C /* cpu.h */,
 				982C3E7B16526A7500AF8E8C /* emu.c */,
-				982C3E77165251E000AF8E8C /* regs.h */,
-				982C3E791652686900AF8E8C /* regs.c */,
 				982C3E7D16526B4400AF8E8C /* emu.h */,
+				982C3E791652686900AF8E8C /* regs.c */,
+				982C3E77165251E000AF8E8C /* regs.h */,
 				982C3E7E16527FFE00AF8E8C /* opcode.c */,
 				982C3E801652802800AF8E8C /* opcode.h */,
 				982C3E821653787C00AF8E8C /* stack.c */,
 				982C3E841653789700AF8E8C /* stack.h */,
+				98D62A3E165C2BB4008D87BA /* assembler.c */,
+				98D62A4416651848008D87BA /* assembler.h */,
+				98D62A451666EF47008D87BA /* str.c */,
 			);
 			path = "PIC16F84A Emulator";
 			sourceTree = "<group>";
@@ -148,6 +156,8 @@
 				982C3E7C16526A7500AF8E8C /* emu.c in Sources */,
 				982C3E7F16527FFE00AF8E8C /* opcode.c in Sources */,
 				982C3E831653787C00AF8E8C /* stack.c in Sources */,
+				98D62A3F165C2BB4008D87BA /* assembler.c in Sources */,
+				98D62A461666EF47008D87BA /* str.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +248,7 @@
 				982C3E721652512B00AF8E8C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -24,7 +24,8 @@ typedef struct _REGISTER_FILE {
     // ------ Bank 0 - 0x00 ------
 
     //Indirect mapping placeholder
-    unsigned char Unused0;
+#define REG_INDF          0x00
+    unsigned char INDF;
 
     //TMR0 is undefined at init
 #define REG_TMR0          0x01
@@ -151,38 +152,46 @@ typedef struct _REGISTER_FILE {
 /* ------- STATUS Register Bit Definitions (03h) ------- */
 
 //Reserved bits (maintain as 0)
-#define STATUS_IRP_RSRV    (1 << 7)
-#define STATUS_RP1_RSRV    (1 << 6)
+#define STATUS_IRP_RSRV_BIT 7
+#define STATUS_IRP_RSRV     (1 << STATUS_IRP_RSRV_BIT)
+#define STATUS_RP1_RSRV_BIT 6
+#define STATUS_RP1_RSRV     (1 << STATUS_RP1_RSRV_BIT)
 
 //Bank select bit
 // 01 = Bank 1 (80h-FFh)
 // 00 = Bank 0 (00h-7Fh)
-#define STATUS_RP0         (1 << 5)
+#define STATUS_RP0_BIT     5
+#define STATUS_RP0         (1 << STATUS_RP0_BIT)
 
 //Timeout bit
 // 01 = After power-up, CLRWDT, or SLEEP retires
 // 00 = A WDT time-out occurred
-#define STATUS_TO          (1 << 4)
+#define STATUS_TO_BIT      4
+#define STATUS_TO          (1 << STATUS_TO_BIT)
 
 //Power-down bit
 // 01 = After powerup or CLRWDT
 // 00 = After SLEEP
-#define STATUS_PD          (1 << 3)
+#define STATUS_PD_BIT      3
+#define STATUS_PD          (1 << STATUS_PD_BIT)
 
 //Zero bit
 // 01 = The result of an operation is 0
 // 00 = The result of an operation not 0
-#define STATUS_Z           (1 << 2)
+#define STATUS_Z_BIT       2
+#define STATUS_Z           (1 << STATUS_Z_BIT)
 
 //Digit carry/borrow bit
 // 01 = A carry-out from the 4th low order bit of the result occurred
 // 00 = No carry-out of the 4th low order bit occurred
-#define STATUS_DC          (1 << 1)
+#define STATUS_DC_BIT      1
+#define STATUS_DC          (1 << STATUS_DC_BIT)
 
 //Carry/borrow bit
 // 01 = A carry-out from the MSB occurred
 // 00 - No carry-out from the MSB occurred
-#define STATUS_C           (1 << 0)
+#define STATUS_C_BIT       0
+#define STATUS_C           (1 << STATUS_C_BIT)
 
 
 /* --------- Function definitions for regs.c -------- */

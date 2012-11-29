@@ -14,7 +14,7 @@
 
 unsigned short OpGenerateOpcode(char *opname, char operand1, char operand2)
 {
-    unsigned short opcode = 0xFFFF;
+    unsigned short opcode = OP_INVALID;
 
     if (!strcmp(opname, "ADDWF"))
     {

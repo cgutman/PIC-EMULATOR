@@ -39,7 +39,7 @@ int CpuInitializeProgramMemory(PIC_CPU *Cpu, unsigned char *buffer, int size)
     }
 
     //Make sure the bytecode size is a multiple of the PIC instruction length
-    if (((size * 0x08) % PIC_OPCODE_BITS) != 0)
+    if ((size % sizeof(PIC_OPCODE)) != 0)
     {
         printf("Program is not valid PIC bytecode\n");
         return -1;
@@ -89,7 +89,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
         printf("Invalid high bits in opcode\n");
         return 0xFFFF;
     }
-
+    
     //Skip to the next instruction
     PC ++;
     
@@ -791,7 +791,7 @@ unsigned short CpuExecuteOpcode(PIC_CPU *Cpu, short opcode, unsigned short PC)
     {
         printf("W: %d -> %d\n", oldW, Cpu->W);
     }
-
+    
     return PC;
 }
 
@@ -811,6 +811,13 @@ int CpuExec(PIC_CPU *Cpu)
         return -1;
     }
 
+    //Make sure the CPU is still running
+    if (!(Cpu->Regs.STATUS & STATUS_PD))
+    {
+        printf("CPU is halted\n");
+        return -1;
+    }
+    
     //Set the new PC
     printf("PC -> 0x%x\n", PC);
     CpuSetPC(Cpu, PC);
